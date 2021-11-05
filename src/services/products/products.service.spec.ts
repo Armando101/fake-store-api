@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { CategoriesService } from '../categories/categories.service';
 import { FilterProductsDto } from '../../dto/product.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -76,6 +77,23 @@ describe('ProductsService', () => {
       const result = productsAll.slice(newFilters.offset, end);
 
       expect(productsFiltered).toStrictEqual(result);
+    });
+
+    it('should delete product', () => {
+      const idProductDelete = 1;
+      const expectedData = { rta: true };
+
+      const result = service.delete(idProductDelete);
+      expect(result).toEqual(expectedData);
+    });
+
+    it('should throw product not found error', () => {
+      const idProductDelete = 0;
+      const messageException = 'Product not found';
+      const exceptionExpected = new NotFoundException(messageException);
+      const deleteMethod = () => service.delete(idProductDelete);
+
+      expect(deleteMethod).toThrow(exceptionExpected);
     });
   });
 });
