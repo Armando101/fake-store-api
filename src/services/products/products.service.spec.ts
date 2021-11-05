@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
 import { CategoriesService } from '../categories/categories.service';
 import { FilterProductsDto } from '../../dto/product.dto';
-import { NotFoundException } from '@nestjs/common';
 
 describe('ProductsService', () => {
   let service: ProductsService;
