@@ -3,16 +3,17 @@ export enum Role {
   customer = 'customer',
 }
 
-export interface User {
+export class User {
   id: number;
   email: string;
   password: string;
   name: string;
   role: Role;
+  avatar: string;
 }
 
 export interface Payload {
-  sub: string;
+  sub: number;
   username?: string;
   email?: string;
   userId?: number;

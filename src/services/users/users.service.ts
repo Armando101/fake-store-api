@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
 import { User, Role } from './../../models/user.model';
-import { CreateUserDto } from './../../dto/user.dto';
+import {
+  CreateUserDto,
+  ValidateUserDto,
+  FilterUsersDto,
+} from './../../dto/user.dto';
+import { generateImage } from './../../utils';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +18,7 @@ export class UsersService {
       password: 'changeme',
       name: 'Jhon',
       role: Role.customer,
+      avatar: generateImage('face'),
     },
     {
       id: 2,
@@ -20,6 +26,7 @@ export class UsersService {
       password: '12345',
       name: 'Maria',
       role: Role.customer,
+      avatar: generateImage('face'),
     },
     {
       id: 3,
@@ -27,6 +34,7 @@ export class UsersService {
       password: 'admin123',
       name: 'Admin',
       role: Role.admin,
+      avatar: generateImage('face'),
     },
   ];
 
@@ -38,8 +46,20 @@ export class UsersService {
     return this.users.find((user) => user.id === id);
   }
 
-  getAll() {
+  getAll(params: FilterUsersDto) {
+    const { limit } = params;
+    if (limit) {
+      return this.users.slice(0, limit);
+    }
     return this.users;
+  }
+
+  isAvailable(dto: ValidateUserDto) {
+    let isAvailable = false;
+    if (dto.email) {
+      isAvailable = this.findByEmail(dto.email) === undefined;
+    }
+    return { isAvailable };
   }
 
   create(dto: CreateUserDto) {

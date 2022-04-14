@@ -1,46 +1,80 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { FilterCategoriesDto, UpdateCategoryDto } from 'src/dto/category.dto';
+import { plainToClass } from 'class-transformer';
 
-import { Category } from '../../models/category.model';
+import { CreateCategoryDto } from '../../dto/category.dto';
+import { DataSetService } from '@app/data-set';
+import { Category } from './../../models/category.model';
+import { generateImage } from './../../utils';
 
 @Injectable()
 export class CategoriesService {
-  private categories: Category[] = [
-    {
-      id: 1,
-      name: 'Clothes',
-      image: `https://placeimg.com/640/480/any?r=${Math.random()}`,
-    },
-    {
-      id: 2,
-      name: 'Electronics',
-      image: `https://placeimg.com/640/480/any?r=${Math.random()}`,
-    },
-    {
-      id: 3,
-      name: 'Furniture',
-      image: `https://placeimg.com/640/480/any?r=${Math.random()}`,
-    },
-    {
-      id: 4,
-      name: 'Toys',
-      image: `https://placeimg.com/640/480/any?r=${Math.random()}`,
-    },
-    {
-      id: 5,
-      name: 'Others',
-      image: `https://placeimg.com/640/480/any?r=${Math.random()}`,
-    },
-  ];
+  constructor(private categories: DataSetService<Category>) {
+    categories.fill([
+      {
+        id: 1,
+        name: 'Clothes',
+        keyLoremSpace: 'fashion',
+        image: generateImage('fashion'),
+      },
+      {
+        id: 2,
+        name: 'Electronics',
+        keyLoremSpace: 'watch',
+        image: generateImage('watch'),
+      },
+      {
+        id: 3,
+        name: 'Furniture',
+        keyLoremSpace: 'furniture',
+        image: generateImage('furniture'),
+      },
+      {
+        id: 4,
+        name: 'Shoes',
+        keyLoremSpace: 'shoes',
+        image: generateImage('shoes'),
+      },
+      {
+        id: 5,
+        name: 'Others',
+        keyLoremSpace: 'random',
+        image: generateImage('random'),
+      },
+    ]);
+  }
 
-  getAll() {
-    return this.categories;
+  getAll(params: FilterCategoriesDto) {
+    const { limit } = params;
+    if (limit) {
+      return plainToClass(Category, this.categories.get().slice(0, limit));
+    }
+    return plainToClass(Category, this.categories.get());
+  }
+
+  getCategories() {
+    return this.categories.get();
   }
 
   getCategory(id: number) {
-    const category = this.categories.find((item) => item.id === id);
+    const category = this.categories.find({ id }).first();
     if (category) {
-      return category;
+      return plainToClass(Category, category);
     }
-    return null;
+    throw new NotFoundException();
+  }
+
+  create(body: CreateCategoryDto) {
+    // TODO: Fix
+    const newCategory = body as Category;
+    return this.categories.create(newCategory);
+  }
+
+  updateCategory(id: number, changes: UpdateCategoryDto) {
+    const category = this.categories.update(id, changes);
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    return plainToClass(Category, category);
   }
 }

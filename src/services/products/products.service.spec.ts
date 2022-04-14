@@ -4,12 +4,14 @@ import { NotFoundException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CategoriesService } from '../categories/categories.service';
 import { FilterProductsDto } from '../../dto/product.dto';
+import { DataSetModule } from '@app/data-set';
 
 describe('ProductsService', () => {
   let service: ProductsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [DataSetModule],
       providers: [ProductsService, CategoriesService],
     }).compile();
 
@@ -94,6 +96,37 @@ describe('ProductsService', () => {
       const deleteMethod = () => service.delete(idProductDelete);
 
       expect(deleteMethod).toThrow(exceptionExpected);
+    });
+
+    it('should be return array with the products that contains the keyword input', () => {
+      const filterAllProduct = new FilterProductsDto();
+      const allProduct = service.getAll(filterAllProduct);
+      const numRandom = Math.floor(Math.random() * (allProduct.length + 1));
+      const productRandom = allProduct[numRandom];
+      const filterProductByTitle = new FilterProductsDto();
+      filterProductByTitle.query = productRandom.title;
+      const productFilterByName = service.getAll(filterProductByTitle);
+
+      expect(productFilterByName.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Test for getProduct method', () => {
+    it('should return a product', () => {
+      const id = 1;
+      const product = service.getProduct(id);
+      expect(product.id).toBe(id);
+    });
+
+    it('should return an error "NotFoundException" when the product does not exist', (done) => {
+      try {
+        const id = 1111;
+        service.getProduct(id);
+        done();
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        done();
+      }
     });
   });
 });
