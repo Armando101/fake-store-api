@@ -89,13 +89,16 @@ describe('ProductsService', () => {
       expect(result).toEqual(expectedData);
     });
 
-    it('should throw product not found error', () => {
+    it('should throw product not found error', (done) => {
       const idProductDelete = 0;
-      const messageException = 'Product not found';
-      const exceptionExpected = new NotFoundException(messageException);
       const deleteMethod = () => service.delete(idProductDelete);
-
-      expect(deleteMethod).toThrow(exceptionExpected);
+      try {
+        deleteMethod();
+        done();
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        done();
+      }
     });
 
     it('should be return array with the products that contains the keyword input', () => {
