@@ -94,6 +94,26 @@ describe('ProductsService', () => {
     });
   });
 
+  it('should delete product', () => {
+    const idProductDelete = 1;
+    const expectedData = { rta: true };
+
+    const result = service.delete(idProductDelete);
+    expect(result).toEqual(expectedData);
+  });
+
+  it('should throw product not found error', (done) => {
+    const idProductDelete = 0;
+    const deleteMethod = () => service.delete(idProductDelete);
+    try {
+      deleteMethod();
+      done();
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundException);
+      done();
+    }
+  });
+
   describe('Test for getProduct method', () => {
     it('should return a product', () => {
       const id = 1;
